@@ -28,6 +28,7 @@ class Worker:
         plan_path: Path,
         run_dir: Path,
         runner: Runner,
+        repo_dir: Path | None = None,
         pid: int | None = None,
         heartbeat_interval: float = 10.0,
         model: str = "claude-opus-4-7",
@@ -35,6 +36,8 @@ class Worker:
         self._plan_path = plan_path
         self._run_dir = run_dir
         self._runner = runner
+        # For the standard layout (<repo>/.plans/<name>/plan.md), parent*3 = repo root.
+        self._repo_dir = repo_dir or plan_path.parent.parent.parent
         self._pid = pid if pid is not None else os.getpid()
         self._heartbeat_interval = heartbeat_interval
         self._model = model
@@ -56,14 +59,15 @@ class Worker:
 
         try:
             answer = read_answer(self._run_dir, consume=True)
+            plan_text = self._plan_path.read_text()
 
-            prompt = _build_prompt(plan.plan_name, answer)
+            prompt = _build_prompt(plan.plan_name, self._plan_path, plan_text, answer)
 
             req = RunnerRequest(
                 role="worker",
                 model=self._model,
                 prompt=prompt,
-                workdir=self._plan_path.parent,
+                workdir=self._repo_dir,
                 runner_config={
                     "run_dir": str(self._run_dir),
                     "session_name": f"bonsai-worker-{plan.plan_name}",
@@ -96,9 +100,27 @@ class Worker:
         return final_status
 
 
-def _build_prompt(plan_name: str, answer: str | None) -> str:
+def _build_prompt(plan_name: str, plan_path: Path, plan_text: str, answer: str | None) -> str:
+    body = f"""# Autonomous Worker — bonsai
+
+Plan: **{plan_name}**
+Plan file: `{plan_path}`
+
+## Plan content
+
+{plan_text}
+
+## Instructions
+
+1. Find the next unchecked task (`- [ ]`) in the plan above.
+2. Execute it: write code, run verification commands, or make configuration changes.
+3. Update `{plan_path}`: change the task checkbox from `- [ ]` to `- [x]`.
+4. Commit: `git commit -m "type: description\\n\\nCo-Authored-By: Claude <noreply@anthropic.com>"`
+5. If ALL tasks are now checked, append `\\n\\n## Status: completed\\n` to `{plan_path}`.
+
+CRITICAL: You MUST write `## Status: completed` to `{plan_path}` when all tasks are done.
+Print `## Status: completed` to stdout as the final line of your response.
+"""
     if answer:
-        return (
-            f"Continue executing plan '{plan_name}'.\n\nAnswer to your previous question:\n{answer}"
-        )
-    return f"Execute the next uncompleted task in plan '{plan_name}'."
+        body += f"\n## Answer to your previous question\n\n{answer}\n"
+    return body
