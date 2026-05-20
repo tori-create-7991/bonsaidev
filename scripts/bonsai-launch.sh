@@ -25,8 +25,10 @@ if tmux has-session -t "${SESSION}" 2>/dev/null; then
     exit 1
 fi
 
+PLAN_QUOTED=$(printf '%q' "${PLAN_PATH}")
+EXTRA=$(printf ' %q' "$@")
 tmux new-session -d -s "${SESSION}" \
-    "uv tool run bonsai start '${PLAN_PATH}' $*; echo '--- bonsai exited ---'; exec bash"
+    "uv tool run bonsai start ${PLAN_QUOTED}${EXTRA}; echo '--- bonsai exited ---'; exec bash"
 
 echo "Started session '${SESSION}'"
 echo "Attach: bonsai attach ${PLAN_NAME}"

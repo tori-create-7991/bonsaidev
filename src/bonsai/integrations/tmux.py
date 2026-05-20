@@ -6,11 +6,12 @@ so callers never construct raw subprocess calls.
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
 
 
-def _run(args: list[str], *, check_stderr: str | None = None) -> subprocess.CompletedProcess:
+def _run(args: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(args, capture_output=True, text=True)
 
 
@@ -43,9 +44,12 @@ class TmuxSession:
         if result.returncode != 0:
             raise RuntimeError(f"tmux send-keys failed: {result.stderr.strip()}")
 
-    def capture_pane(self, *, pane: str | None = None) -> str:
+    def capture_pane(self, *, pane: str | None = None, lines: int | None = None) -> str:
         target = f"{self.session_name}{':' + pane if pane else ''}"
-        result = _run(["tmux", "capture-pane", "-t", target, "-p"])
+        cmd = ["tmux", "capture-pane", "-t", target, "-p"]
+        if lines is not None:
+            cmd += ["-S", f"-{lines}"]
+        result = _run(cmd)
         if result.returncode != 0:
             raise RuntimeError(f"tmux capture-pane failed: {result.stderr.strip()}")
         return result.stdout
@@ -60,7 +64,7 @@ class TmuxSession:
                 "-t",
                 self.session_name,
                 "-o",
-                f"cat >> {log_path}",
+                f"cat >> {shlex.quote(str(log_path))}",
             ]
         result = _run(cmd)
         if result.returncode != 0:
