@@ -1,0 +1,86 @@
+# Auto Dev 許可ツール
+# 生成: 2026-05-21
+# プラン: .plans/phase1-mvp/plan.md
+# 対象: bonsaidev (CLI: bonsai) Phase 1 MVP (Python ハイブリッド実装)
+
+# 基本ツール（常に必要）
+Read
+Write
+Edit
+Glob
+Grep
+Agent
+ToolSearch
+
+# Git / FS / 探索
+Bash(git:*)
+Bash(ls:*)
+Bash(cat:*)
+Bash(head:*)
+Bash(tail:*)
+Bash(grep:*)
+Bash(rg:*)
+Bash(find:*)
+Bash(awk:*)
+Bash(sed:*)
+Bash(mkdir:*)
+Bash(cp:*)
+Bash(mv:*)
+Bash(rm:*)
+Bash(chmod:*)
+Bash(touch:*)
+Bash(diff:*)
+Bash(realpath:*)
+Bash(readlink:*)
+Bash(wc:*)
+Bash(sort:*)
+Bash(uniq:*)
+Bash(tr:*)
+Bash(cut:*)
+Bash(xargs:*)
+
+# Python / uv (主実装言語)
+Bash(uv:*)
+Bash(uvx:*)
+Bash(python3:*)
+Bash(python:*)
+Bash(pip:*)
+Bash(pytest:*)
+Bash(ruff:*)
+Bash(mypy:*)
+
+# pre-commit / gitleaks (フィードバック速度の原則)
+Bash(pre-commit:*)
+Bash(gitleaks:*)
+Bash(shellcheck:*)
+Bash(ast-grep:*)
+
+# tmux (Phase 1 主軸ランナーの検証)
+Bash(tmux:*)
+
+# bash bridge 経由で呼ぶサブプロセス検証用
+Bash(bash:*)
+Bash(sh:*)
+Bash(source:*)
+Bash(which:*)
+Bash(printenv:*)
+Bash(env:*)
+Bash(true:*)
+Bash(false:*)
+Bash(echo:*)
+Bash(test:*)
+
+# claude_p ランナーの subprocess 動作確認 (mock テスト主体だが --help 程度は許可)
+Bash(claude:*)
+
+# mise (環境セットアップ確認)
+Bash(mise:*)
+
+### SUPERVISOR_ONLY ###
+Bash(gh:*)
+Bash(git push:*)
+mcp__claude_ai_Notion__*
+
+### REVIEWER_ONLY ###
+Bash(gh pr:*)
+Bash(git push:*)

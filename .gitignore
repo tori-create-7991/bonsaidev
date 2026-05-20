@@ -50,3 +50,4 @@ htmlcov/
 .env
 .env.local
 .envrc
+.logs/
