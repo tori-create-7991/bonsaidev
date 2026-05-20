@@ -26,13 +26,52 @@ CLI エントリポイント名は `bonsai`。既存 [start-auto-dev](https://gi
 
 ## ステータス
 
-設計確定 (D1〜D19 + レビュー反映済み)。Phase 1 MVP 実装中。
+Phase 1 MVP 実装完了。
 
-## インストール (将来)
+## インストール
 
 ```bash
+# ローカル開発版
+uv tool install -e /path/to/bonsaidev
+
+# リポジトリから直接
 uv tool install git+https://github.com/tori-create-7991/bonsaidev.git
 ```
+
+## 使い方 (Phase 1 MVP)
+
+```bash
+# plan.md の内容を確認 (実行なし)
+bonsai start .plans/my-feature/plan.md --dry-run
+
+# tmux_rpc runner (Claude Max サブスク経由) で実行
+bonsai start .plans/my-feature/plan.md
+
+# claude_p runner (claude -p コマンド経由) で実行
+bonsai start .plans/my-feature/plan.md --runner claude_p
+
+# 実行中の Worker セッションにアタッチ
+bonsai attach my-feature
+
+# Worker セッションを停止
+bonsai kill my-feature
+
+# バックグラウンド起動 (tmux detach で自動)
+scripts/bonsai-launch.sh .plans/my-feature/plan.md
+```
+
+### プランファイルの形式
+
+```markdown
+# my-feature
+
+- [ ] Task 1: implement X
+- [ ] Task 2: add tests
+- [x] Task 3: already done
+```
+
+Worker が各タスクをこなすと `- [x]` に更新され、
+完了時に `## Status: completed` が末尾に追記されます。
 
 ## ライセンス
 
