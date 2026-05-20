@@ -1,0 +1,7 @@
+[tools]
+python = "3.12"
+uv = "latest"
+
+[env]
+CLOUDSDK_ACTIVE_CONFIG_NAME = "default"
+GH_TOKEN = "{{exec(command='gh auth token --user tori-create-7991')}}"
